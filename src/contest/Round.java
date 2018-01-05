@@ -1,5 +1,6 @@
 package contest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import agents.Agent;
@@ -11,6 +12,7 @@ public class Round {
 	private PayoutTable pt;
 	private AgentPool pool;
 	private Random rand;
+	private HashMap<String,Boolean> shown = new HashMap<String,Boolean>();
 	
 	public Round(int number, int iterations, PayoutTable pt, AgentPool pool, Long seed) {
 		this.number = number;
@@ -28,7 +30,7 @@ public class Round {
 		return iterations;
 	}
 	
-	public void playNextMatch() {
+	public boolean playNextMatch() {
 		Agent a1 = null;
 		Agent a2 = null;
 		if (pool.getMatchNumber() < 10000) {
@@ -38,8 +40,6 @@ public class Round {
 			a1 = pool.underrepresentedAgent(rand.nextLong(), true);
 			a2 = pool.underrepresentedAgent(rand.nextLong(), false);
 		}
-		//System.out.println("Next match [" + pool.getMatchNumber() + "]: " +
-		//		a1.getClass().getSimpleName() + " vs. " + a2.getClass().getSimpleName());
 		ArrayList<IterationPlay> plays = new ArrayList<IterationPlay>();
 		int score1 = 0, score2 = 0;
 		for (int i=0; i < iterations; i++) {
@@ -55,11 +55,20 @@ public class Round {
 			m1 += p.self(true) == Action.COOP ? "C" : "D";
 			m2 += p.opp(true) == Action.COOP ? "C" : "D";
 		}
-		//System.out.println(m1 + "\n" + m2 + "\nResult: " + score1 + " - " + score2 + "\n");
+		String key = a1.getClass().getSimpleName() + a2.getClass().getSimpleName();
+		if (!shown.containsKey(key) && (a1.showMatches() || a2.showMatches())) {
+			System.out.println("Next match [" + pool.getMatchNumber() + "]: " +
+					a1.getClass().getSimpleName() + " vs. " + a2.getClass().getSimpleName());
+			System.out.println(m1 + "\n" + m2 + "\nResult: " + score1 + " - " + score2 + "\n");
+			shown.put(key, true);
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean done() {
 		//System.out.println(pool.distributionTable());
+		if (pool.getMatchNumber() < 10000) return false;
 		return pool.fairDistribution();
 	}
 	

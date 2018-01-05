@@ -1,23 +1,48 @@
 package contest;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Random;
 
 import agents.Agent;
 
 public class AgentPool {
 
 	private List<Class> agents;
+	private int npcs = 0;
 	private int[] basis;
 	private int[] score;
 
 	private int[] used1;
 	private int[] used2;
 	private int matches = 0;
-
+	
 	public AgentPool(List<Class> agents, int[] basis) {
+		init(agents, basis, 0, 0);
+	}
+
+	public AgentPool(List<Class> agents, int[] basis, int npcagents, long seed) {
+		init(agents, basis, npcagents, seed);
+	}
+	
+	private void init(List<Class> agents, int[] basis, int npcagents, long seed) {
 		this.agents = agents;
 		this.basis = basis;
+		this.npcs = npcagents;
 		if (agents.size() != basis.length) throw new IllegalArgumentException("Agent list size doesn't match basis allocation");
+		if (npcagents > basis.length) throw new IllegalArgumentException("Too many NPC agents specified!");
+		
+		// if NPC agents are in the pool, randomize their distribution
+		int weight = 0;
+		for (int i=0; i < npcagents; i++) weight += basis[i];
+		if (weight > 0) {
+			Random r = new Random(seed);
+			for (int i=0; i < npcagents - 1; i++) {
+				int t = basis[i];
+				basis[i] = t/2 + r.nextInt(t/2);
+				weight -= basis[i];
+			}
+			basis[npcagents-1] = weight;
+		}
 
 		int total = 0;
 		for (int i=0; i < basis.length; i++) total += basis[i];
@@ -85,7 +110,9 @@ public class AgentPool {
 
 	private Agent fromAgentClass(int i, Long seed) {
 		try {
-			return (Agent)agents.get(i).getDeclaredConstructor(Long.class).newInstance(seed);
+			Agent a = (Agent)agents.get(i).getDeclaredConstructor(Long.class).newInstance(seed);
+			a.show(i >= npcs);
+			return a;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new IllegalArgumentException("Invalid class instantiation " + e);
@@ -137,6 +164,10 @@ public class AgentPool {
 		else if (totalbasis > 10000) newbasis[best] += 10000 - totalbasis;
 		
 		return new AgentPool(agents, newbasis);
+	}
+	
+	public int agents() {
+		return agents.size();
 	}
 
 	public String toString() {
