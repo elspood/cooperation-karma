@@ -7,3 +7,5 @@ of agents (at least in the early- to mid-game).
 
 Edit contest.CKTournament locally to modify initial pool settings and to add/remove agents from the pool.
 Create as many agents as you want and see how they play together.
+
+This year's final competition random seed: 50252371
