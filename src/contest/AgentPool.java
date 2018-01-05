@@ -11,6 +11,7 @@ public class AgentPool {
 	private int npcs = 0;
 	private int[] basis;
 	private int[] score;
+	private long totalscore = 0;
 
 	private int[] used1;
 	private int[] used2;
@@ -59,6 +60,7 @@ public class AgentPool {
 			if (c.equals(a1)) score[i] += s1;
 			if (c.equals(a2)) score[i] += s2;
 		}
+		totalscore += s1 + s2;
 	}
 
 	public int getMatchNumber() {
@@ -168,6 +170,20 @@ public class AgentPool {
 	
 	public int agents() {
 		return agents.size();
+	}
+	
+	public String scoreboard() {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i < basis.length; i++) {
+			String name = agents.get(i).getSimpleName();
+			sb.append(name);
+			for (int j = name.length(); j < 20; j++) sb.append(" ");
+			int pct = (int)((50 * score[i]) / totalscore);
+			for (int j = 0; j < pct; j++) sb.append("*");
+			for (int j = pct; j < 50; j++) sb.append("-");
+			sb.append(" " + score[i] + " [" + used1[i] + "," + used2[i] + "]\n");
+		}
+		return sb.toString();
 	}
 
 	public String toString() {

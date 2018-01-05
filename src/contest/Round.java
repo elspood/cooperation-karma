@@ -30,7 +30,7 @@ public class Round {
 		return iterations;
 	}
 	
-	public boolean playNextMatch() {
+	public boolean playNextMatch(boolean show) {
 		Agent a1 = null;
 		Agent a2 = null;
 		if (pool.getMatchNumber() < 10000) {
@@ -56,7 +56,7 @@ public class Round {
 			m2 += p.opp(true) == Action.COOP ? "C" : "D";
 		}
 		String key = a1.getClass().getSimpleName() + a2.getClass().getSimpleName();
-		if (!shown.containsKey(key) && (a1.showMatches() || a2.showMatches())) {
+		if (show && !shown.containsKey(key) && (a1.showMatches() || a2.showMatches())) {
 			System.out.println("Next match [" + pool.getMatchNumber() + "]: " +
 					a1.getClass().getSimpleName() + " vs. " + a2.getClass().getSimpleName());
 			System.out.println(m1 + "\n" + m2 + "\nResult: " + score1 + " - " + score2 + "\n");
@@ -74,6 +74,10 @@ public class Round {
 	
 	public AgentPool survive() {
 		return pool.survive();
+	}
+	
+	public String scoreboard() {
+		return pool.scoreboard();
 	}
 	
 	public String toString() {

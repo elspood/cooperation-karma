@@ -10,6 +10,9 @@ public class CKTournament {
 	
 	private static Random rand = new Random();
 	private static ArrayList<Round> rounds = new ArrayList<Round>();
+	
+	private static long timer;
+	private static long start;
 
 	private static final Class<Agent>[] DEFAULTAGENTS = new Class[] {
 			// default agents - these will take up 30-70% of the starting pool
@@ -52,8 +55,7 @@ public class CKTournament {
 			return;
 		}
 		
-		long timer = 0;
-		long start = System.currentTimeMillis();
+		start = System.currentTimeMillis();
 		try {
 			timer = Integer.decode(args[1]) * 60 * 1000;
 		} catch (Exception e) {
@@ -68,22 +70,19 @@ public class CKTournament {
 			rounds.add(r);
 			System.out.println(r);
 			int matchesshown = 0;
+			int matches = 0;
 			do {
 				for (int i=0; i < 100; i++) {
-					if (r.playNextMatch()) {
+					if (r.playNextMatch(round < 6)) {
 						matchesshown++;
-						try {
-							long elapsed = System.currentTimeMillis() - start;
-							int sleep = 6;
-							if (timer - elapsed < 5 * 60 * 1000) sleep = 3;
-							if (timer - elapsed < 60000) sleep = 1;
-							if (timer - elapsed < 20000) sleep = 0;
-							Thread.sleep(sleep * 1000);
-						} catch (InterruptedException e) {
-							
-						}
+						sleep();
 						if (matchesshown % 10 == 9) System.out.println(r);
 					}
+				}
+				matches += 100;
+				if (matches % 2500 == 0) {
+					System.out.println(r.scoreboard());
+					sleep();
 				}
 			} while (!r.done()) ;
 			
@@ -94,5 +93,17 @@ public class CKTournament {
 		
 		System.out.println("FINAL RESULT after " + (round-1) + " rounds:\n" + pool);
 	}
-
+	
+	private static void sleep() {
+		try {
+			long elapsed = System.currentTimeMillis() - start;
+			int sleep = 6;
+			if (timer - elapsed < 5 * 60 * 1000) sleep = 3;
+			if (timer - elapsed < 60000) sleep = 1;
+			if (timer - elapsed < 20000) sleep = 0;
+			Thread.sleep(sleep * 1000);
+		} catch (InterruptedException e) {
+			
+		}
+	}
 }
