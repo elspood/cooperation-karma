@@ -74,8 +74,8 @@ public class CKTournament {
 						matchesshown++;
 						try {
 							long elapsed = System.currentTimeMillis() - start;
-							int sleep = 10;
-							if (timer - elapsed < 5 * 60 * 1000) sleep = 5;
+							int sleep = 6;
+							if (timer - elapsed < 5 * 60 * 1000) sleep = 3;
 							if (timer - elapsed < 60000) sleep = 1;
 							if (timer - elapsed < 20000) sleep = 0;
 							Thread.sleep(sleep * 1000);
